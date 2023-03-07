@@ -41,10 +41,52 @@ async function processLineByLine() {
 		crlfDelay: Infinity
 	});
 
+	let second = false;
+	let str;
+	const map = new Map();
 	for await (const line of rl) {
+		if (!line) {
+			second = true;
+			continue;
+		}
+
+		if (second) {
+			str = line;
+		} else {
+			const parts = line.split(" => ");
+			const key = parts[0];
+			const value = parts[1];
+
+			if (map.has(key)) {
+				const arr = map.get(key);
+				arr.push(value);
+			} else {
+				map.set(key, [value]);
+			}
+		}
 	}
 
-	console.log();
+	const set = new Set();
+
+	for (const entry of map) {
+		const key = entry[0];
+		const replacements = entry[1];
+
+		console.log(key);
+		console.log(replacements);
+
+		for (let r = 0; r < replacements.length; r++) {
+			const rep = replacements[r];
+			let index = str.indexOf(key);
+			while (index !== -1) {
+				const newStr = str.substring(0, index) + str.substring(index).replace(key, rep);
+				set.add(newStr);
+				index = str.indexOf(key, index + key.length);
+			}
+		}
+	}
+
+	console.log(set.size);
 }
 
 processLineByLine();

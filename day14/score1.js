@@ -41,10 +41,46 @@ async function processLineByLine() {
 		crlfDelay: Infinity
 	});
 
+	const deers = [];
 	for await (const line of rl) {
+		let deer = {};
+
+		const parts = line.split(" ");
+
+		deer.name = parts[0];
+		deer.speed = parseInt(parts[3]);
+		deer.fly = parseInt(parts[6]);
+		deer.rest = parseInt(parts[parts.length - 2]);
+		deers.push(deer);
 	}
 
-	console.log();
+	let time = 2503;
+	const awards = Array(deers.length).fill(0);
+	const dists = Array(deers.length).fill(0);
+
+	for (let i = 0; i < time; i++) {
+		let maxIndices = [];
+		let max = 0;
+		for (let j = 0; j < deers.length; j++) {
+			const deer = deers[j];
+			if (i % (deer.fly + deer.rest) < deer.fly) {
+				dists[j] += deer.speed;
+			}
+			if (dists[j] > max) {
+				maxIndices = [j];
+				max = dists[j];
+			} else if (dists[j] === max) {
+				maxIndices.push(j);
+			}
+		}
+
+		for (let j = 0; j < maxIndices.length; j++) {
+			awards[maxIndices[j]]++;
+		}
+	}
+
+	console.log(Math.max(...dists));
+	console.log(Math.max(...awards));
 }
 
 processLineByLine();

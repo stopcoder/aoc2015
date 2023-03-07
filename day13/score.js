@@ -41,10 +41,48 @@ async function processLineByLine() {
 		crlfDelay: Infinity
 	});
 
-	for await (const line of rl) {
+	const pers = [];
+	const map = [];
+	for await (let line of rl) {
+		line = line.substring(0, line.length - 1);
+		const parts = line.split(" ");
+		const p1 = parts[0];
+		const p2 = parts[parts.length - 1];
+		let value = parseInt(parts[3]);
+		if (parts[2] === "lose") {
+			value *= -1;
+		}
+
+		let i1 = pers.indexOf(p1);
+		if (i1 === -1) {
+			i1 = pers.length;
+			pers.push(p1);
+		}
+
+		let i2 = pers.indexOf(p2);
+		if (i2 === -1) {
+			i2 = pers.length;
+			pers.push(p2);
+		}
+
+		map[i1] = map[i1] || [];
+		map[i1][i2] = value;
 	}
 
-	console.log();
+	const perms = permutation(pers.length);
+
+	const result = perms.reduce((acc, perm) => {
+		let sum = 0;
+		for (let i = 0; i < perm.length; i++) {
+			const cur = perm[i];
+			const next = perm[(i+1) % perm.length];
+			sum += (map[cur][next] + map[next][cur]);
+		}
+
+		return Math.max(acc, sum);
+	}, 0);
+
+	console.log(result);
 }
 
 processLineByLine();

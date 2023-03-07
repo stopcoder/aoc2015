@@ -41,10 +41,28 @@ async function processLineByLine() {
 		crlfDelay: Infinity
 	});
 
+	const containers = [];
+
 	for await (const line of rl) {
+		containers.push(parseInt(line));
 	}
 
-	console.log();
+	let count = 0;
+	const limit = (1 << containers.length) - 1;
+	for (let i = 0; i <= limit; i++) {
+		const result = containers.reduce((acc, capa, j) => {
+			if (i & (1 << j)) {
+				return acc + capa;
+			} else {
+				return acc;
+			}
+		}, 0);
+		if (result === 150) {
+			count++;
+		}
+	}
+
+	console.log(count);
 }
 
 processLineByLine();

@@ -41,10 +41,40 @@ async function processLineByLine() {
 		crlfDelay: Infinity
 	});
 
+	const expected = {
+		children: 3,
+		cats: 7,
+		samoyeds: 2,
+		pomeranians: 3,
+		akitas: 0,
+		vizslas: 0,
+		goldfish: 5,
+		trees: 3,
+		cars: 2,
+		perfumes: 1
+	};
+
+	const sues = [];
+
 	for await (const line of rl) {
+		const parts = line.split(": ").slice(1).join(": ").split(", ");
+		const sue = parts.reduce((acc, s) => {
+			const parts = s.split(": ");
+			acc[parts[0]] = parseInt(parts[1]);
+			return acc;
+		}, {});
+		sues.push(sue);
 	}
 
-	console.log();
+	sues.forEach((sue, i) => {
+		const match = Object.keys(sue).every((key) => {
+			return sue[key] === expected[key];
+		});
+
+		if (match) {
+			console.log(i+1);
+		}
+	});
 }
 
 processLineByLine();

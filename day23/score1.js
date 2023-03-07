@@ -41,10 +41,72 @@ async function processLineByLine() {
 		crlfDelay: Infinity
 	});
 
+	const loc = [];
 	for await (const line of rl) {
+		let parts = line.split(", ");
+		const result = [];
+
+		let command;
+		if (parts.length === 2) {
+			command = parts[0];
+			result.push(parseInt(parts[1]));
+		} else {
+			command = line;
+		}
+
+		parts = command.split(" ");
+		if (parts[0] === "jmp") {
+			parts[1] = parseInt(parts[1]);
+		}
+		result.unshift(parts[1]);
+		result.unshift(parts[0]);
+		loc.push(result);
 	}
 
-	console.log();
+	let ln = 0;
+	let o = {
+		a: 1,
+		b: 0
+	};
+
+	while (ln < loc.length) {
+		console.log(ln);
+		const code = loc[ln];
+
+		switch (code[0]) {
+			case "inc":
+				o[code[1]]++;
+				ln++;
+				break;
+			case "tpl":
+				o[code[1]] *= 3;
+				ln++;
+				break;
+			case "hlf":
+				o[code[1]] /= 2;
+				ln++;
+				break;
+			case "jmp":
+				ln += code[1];
+				break;
+			case "jio":
+				if (o[code[1]] === 1) {
+					ln += code[2];
+				} else {
+					ln++;
+				}
+				break;
+			case "jie":
+				if (o[code[1]] % 2 === 0) {
+					ln += code[2];
+				} else {
+					ln++;
+				}
+				break;
+		}
+	}
+
+	console.log(o.b);
 }
 
 processLineByLine();

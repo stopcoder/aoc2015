@@ -34,17 +34,57 @@ console.log(paths);
 */
 
 async function processLineByLine() {
-	const fileStream = fs.createReadStream('input');
+	const isPrime = (number) => {
+		if (number < 2) {
+			return false;
+		}
 
-	const rl = readline.createInterface({
-		input: fileStream,
-		crlfDelay: Infinity
-	});
+		if (number % 2 === 0) {
+			return (number === 2);
+		}
 
-	for await (const line of rl) {
-	}
+		for (let i = 3; i <= Math.sqrt(number); i += 2) {
+			if (number % i === 0) {
+				return false;
+			}
+		}
 
-	console.log();
+		return true;
+	};
+
+	const factors = (number) => {
+		const limit = Math.floor(Math.sqrt(number));
+		const res = [];
+		for (let i = 1; i <= limit; i++) {
+			let pos = res.length / 2;
+			if (number % i === 0) {
+				res.splice(pos, 0, i);
+				if (number / i !== i) {
+					res.splice(pos === 0 ? 1 : -pos, 0, number / i);
+				}
+			}
+		}
+
+		return res;
+	};
+
+
+	const threshold = 33100000;
+
+	let sum;
+	let start = 2;
+
+	do {
+		sum = factors(start).reduce((acc, n) => {
+			return acc + n * 10;
+		}, 0);
+		if (start % 100000 === 0) {
+			console.log(start, sum);
+		}
+		start++;
+	} while (sum < threshold)
+
+	console.log(start - 1);
 }
 
 processLineByLine();
